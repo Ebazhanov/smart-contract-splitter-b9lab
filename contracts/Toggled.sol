@@ -1,17 +1,13 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.4.21 <0.6.0;
 
 import {Owned} from "./Owned.sol";
 
 contract Toggled is Owned {
 
-    bool private active;
+    bool private active = true;
 
     event LogContractPaused(address indexed performedBy);
     event LogContractResumed(address indexed performedBy);
-
-    constructor() internal {
-        active = true;
-    }
 
     modifier isActive() {
         require(active, "Contract is currently paused");
