@@ -5,7 +5,7 @@ const Splitter = artifacts.require("Splitter");
 
 contract('Splitter', accounts => {
     // Setup accounts
-    const [sender, Bob, Alice] = accounts;
+    const [owner, sender, Bob, Alice] = accounts;
 
     let splitterInstance;
 
@@ -30,6 +30,32 @@ contract('Splitter', accounts => {
             const amount = 11;
             const txObject = await splitterInstance.split(Bob, Alice, {from: sender, value: amount});
             assert.strictEqual(txObject.receipt.status, 0, 'Split failed');
+        });
+
+    });
+
+    describe('Pausing, resuming and self destructing functionality', () => {
+
+        it('Should be able to withdraw only when contract is not paused', async () => {
+            // Splitting
+            await splitterInstance.split(Bob, Alice, {from: sender, value: 100});
+
+            // Pausing
+            await splitterInstance.pause({from: owner});
+
+            // Withdrawing
+            await splitterInstance.withdraw({from: Bob}).should.be.rejectedWith(Error);
+
+            // Resuming
+            await splitterInstance.resume({from: owner});
+
+            // Withdrawing 1
+            txObject = await splitterInstance.withdraw({from: Bob});
+            assert(txObject.receipt.status, 'Withdrawal failed when contract was resumed');
+
+            // Withdrawing 2
+            txObject = await splitterInstance.withdraw({from: Alice});
+            assert(txObject.receipt.status, 'Withdrawal failed when contract was resumed');
         });
 
     });
