@@ -29,7 +29,7 @@ contract('Splitter', accounts => {
             // Split sent ether between receivers.
             const amount = 11;
             const txObject = await splitterInstance.split(Bob, Alice, {from: sender, value: amount});
-            assert(txObject.receipt.status, 'Split failed');
+            assert.strictEqual(txObject.receipt.status, 0, 'Split failed');
         });
 
     });
